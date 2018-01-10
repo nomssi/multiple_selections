@@ -10,7 +10,7 @@ CLASS lcl_main DEFINITION.
     TYPES: BEGIN OF ty_option,
              value   TYPE char10,
              text    TYPE string,
-             checked TYPE boolean_flg,
+             checked TYPE flag,
            END OF ty_option.
     DATA: mytoolbar TYPE REF TO cl_gui_toolbar,
           options   TYPE STANDARD TABLE OF ty_option.
@@ -90,11 +90,7 @@ CLASS lcl_main IMPLEMENTATION.
 
     ASSIGN options[ value = fcode ] TO FIELD-SYMBOL(<option>).
     IF sy-subrc = 0.
-      IF <option>-checked = abap_true.
-        <option>-checked = abap_false.
-      ELSE.
-        <option>-checked = abap_true.
-      ENDIF.
+      <option>-checked = xsdbool( <option>-checked = abap_false ).
     ENDIF.
 
     build_menu( ).
@@ -116,6 +112,5 @@ INITIALIZATION.
   PARAMETERS p_off TYPE icon_d DEFAULT icon_cancel MATCHCODE OBJECT h_icon.
 
 AT SELECTION-SCREEN.
-  main->set_icons(
-          EXPORTING on  = conv #( p_on )
+  main->set_icons(  on  = conv #( p_on )
                     off = conv #( p_off ) ).

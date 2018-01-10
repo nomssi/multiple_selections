@@ -9,7 +9,7 @@ CLASS lcl_main DEFINITION.
     TYPES: BEGIN OF ty_option,
              value   TYPE char10,
              text    TYPE string,
-             checked TYPE boolean_flg,
+             checked TYPE flag,
            END OF ty_option.
     DATA: mytoolbar    TYPE REF TO cl_gui_toolbar,
           menupos_x    TYPE i,
@@ -30,11 +30,9 @@ CLASS lcl_main IMPLEMENTATION.
   METHOD build_menu.
 
     IF menu_dynamic IS INITIAL.
-      "Create menu
-      CREATE OBJECT menu_dynamic.
+      menu_dynamic = NEW #( ).         "Create menu
     ELSE.
-      "Clear all entries before rebuild
-      menu_dynamic->clear( ).
+      menu_dynamic->clear( ).          "Clear all entries before rebuild
     ENDIF.
 
     LOOP AT options ASSIGNING FIELD-SYMBOL(<option>).
@@ -50,8 +48,8 @@ CLASS lcl_main IMPLEMENTATION.
   METHOD display.
 
     "Create docker on Top of the screen
-    DATA(docker) = NEW cl_gui_docking_container( side = cl_gui_docking_container=>dock_at_top extension = 30 ).
-
+    DATA(docker) = NEW cl_gui_docking_container( side = cl_gui_docking_container=>dock_at_top
+                                                 extension = 30 ).
     "create toolbar object
     mytoolbar = NEW #( parent = docker ).
 
@@ -86,14 +84,8 @@ CLASS lcl_main IMPLEMENTATION.
   METHOD on_function_selected.
 
     "switch option entry
-    LOOP AT options ASSIGNING FIELD-SYMBOL(<option>).
-      IF <option>-value = fcode.
-        IF <option>-checked = abap_true.
-          <option>-checked = abap_false.
-        ELSE.
-          <option>-checked = abap_true.
-        ENDIF.
-      ENDIF.
+    LOOP AT options ASSIGNING FIELD-SYMBOL(<option>) WHERE value EQ fcode.
+       <option>-checked = xsdbool( <option>-checked = abap_false ).
     ENDLOOP.
 
     "rebuild menu

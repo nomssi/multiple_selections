@@ -3,7 +3,7 @@ REPORT ZTRCKTRSR_MULTI_SEL_SALV.
 CLASS lcl_main DEFINITION.
   PUBLIC SECTION.
     TYPES: BEGIN OF ty_option,
-             mark  TYPE boolean_flg,
+             mark  TYPE flag,
              icon  type icon_d,
              key   TYPE c LENGTH 10,
              text  TYPE c LENGTH 100,
@@ -71,20 +71,22 @@ CLASS lcl_main IMPLEMENTATION.
   ENDMETHOD.
   METHOD on_click.
 
-    READ TABLE mt_options ASSIGNING FIELD-SYMBOL(<option>) INDEX row.
+    ASSIGN mt_options[ row ] TO FIELD-SYMBOL(<option>).
     IF sy-subrc = 0.
       IF <option>-mark = abap_true.
         <option>-mark = abap_false.
-         <option>-icon = icon_led_red.
+        <option>-icon = icon_led_red.
         CLEAR <option>-_col_.
-        APPEND INITIAL LINE TO <option>-_col_ ASSIGNING FIELD-SYMBOL(<col>).
-*        <col>-color-col = col_background.
+        APPEND VALUE #(
+*          color-col = col_background.
+             ) TO <option>-_col_.
       ELSE.
         <option>-mark  = abap_true.
-         <option>-icon = icon_led_green.
+        <option>-icon = icon_led_green.
         CLEAR <option>-_col_.
-        APPEND INITIAL LINE TO <option>-_col_ ASSIGNING <col>.
-*        <col>-color-col = col_positive.
+        APPEND VALUE #(
+           " color-col = col_positive
+         ) TO <option>-_col_.
       ENDIF.
     ENDIF.
 
@@ -99,7 +101,7 @@ CLASS lcl_main IMPLEMENTATION.
 
     LOOP AT mt_options ASSIGNING FIELD-SYMBOL(<option>).
       CLEAR <option>-_col_.
-      APPEND INITIAL LINE TO <option>-_col_ ASSIGNING FIELD-SYMBOL(<col>).
+      APPEND VALUE #( ) TO <option>-_col_ ASSIGNING FIELD-SYMBOL(<col>).
       IF <option>-mark = abap_false.
 *        <col>-color-col = col_background.
         <option>-icon = icon_led_red.
